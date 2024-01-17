@@ -1,10 +1,58 @@
-from flask import Flask, request, jsonify, send_file
+# from flask import Flask, request, jsonify, send_file
 import speech_recognition as sr
-from gtts import gTTS
+# from gtts import gTTS
+# import os
+
+# app = Flask(__name__)
+
+
+# @app.route('/text-to-speech', methods=['POST'])
+# def text_to_speech():
+#     if 'text' not in request.json:
+#         return jsonify({'error': 'No text provided'}), 400
+
+#     text = request.json['text']
+#     tts = gTTS(text)
+#     tts.save('output.mp3')
+
+#     return send_file('output.mp3', as_attachment=True)
+
+# if __name__ == '__main__':
+#     app.run(debug=True)
+
+
+from flask import Flask, request, jsonify, send_file
+from openai import OpenAI
+import tempfile
 import os
 
 app = Flask(__name__)
+client = OpenAI(api_key="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")
 recognizer = sr.Recognizer()
+
+@app.route('/generate-speech', methods=['POST'])
+def generate_speech():
+    try:
+        input_text = request.json['input_text']
+
+        response = client.audio.speech.create(
+            model="tts-1",
+            voice="alloy",
+            input=input_text
+        )
+
+        temp_file_path = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3").name
+        response.stream_to_file(temp_file_path)
+
+        return send_file(
+            temp_file_path,
+            as_attachment=True,
+            download_name="speech.mp3",
+            mimetype="audio/mp3"
+        )
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
 
 @app.route('/audio-to-text', methods=['POST'])
 def audio_to_text():
@@ -25,16 +73,6 @@ def audio_to_text():
     except sr.RequestError as e:
         return jsonify({'error': f"Could not request results from Google Web Speech API; {e}"}), 500
 
-@app.route('/text-to-speech', methods=['POST'])
-def text_to_speech():
-    if 'text' not in request.json:
-        return jsonify({'error': 'No text provided'}), 400
-
-    text = request.json['text']
-    tts = gTTS(text)
-    tts.save('output.mp3')
-
-    return send_file('output.mp3', as_attachment=True)
 
 if __name__ == '__main__':
     app.run(debug=True)
