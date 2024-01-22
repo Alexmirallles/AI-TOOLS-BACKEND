@@ -1,26 +1,4 @@
-# from flask import Flask, request, jsonify, send_file
 import speech_recognition as sr
-# from gtts import gTTS
-# import os
-
-# app = Flask(__name__)
-
-
-# @app.route('/text-to-speech', methods=['POST'])
-# def text_to_speech():
-#     if 'text' not in request.json:
-#         return jsonify({'error': 'No text provided'}), 400
-
-#     text = request.json['text']
-#     tts = gTTS(text)
-#     tts.save('output.mp3')
-
-#     return send_file('output.mp3', as_attachment=True)
-
-# if __name__ == '__main__':
-#     app.run(debug=True)
-
-
 from flask import Flask, request, jsonify, send_file
 from openai import OpenAI
 import tempfile
