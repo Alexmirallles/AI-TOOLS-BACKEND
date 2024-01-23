@@ -5,13 +5,14 @@ import tempfile
 import os
 
 app = Flask(__name__)
-client = OpenAI(api_key="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")
 recognizer = sr.Recognizer()
 
 @app.route('/generate-speech', methods=['POST'])
 def generate_speech():
     try:
         input_text = request.json['input_text']
+        client = OpenAI(api_key=request.json['open_ai'])
+
 
         response = client.audio.speech.create(
             model="tts-1",
