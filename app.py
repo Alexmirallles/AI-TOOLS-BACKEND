@@ -1,12 +1,12 @@
 import speech_recognition as sr
 from flask import Flask, request, jsonify, send_file
-from openai import OpenAI
+# from openai import OpenAI
+import openai
+
 import requests
 import tempfile
 
-
-# import os
-# import pydub 
+from googletrans import Translator
 
 app = Flask(__name__)
 recognizer = sr.Recognizer()
@@ -15,10 +15,11 @@ recognizer = sr.Recognizer()
 def generate_speech():
     try:
         input_text = request.json['input_text']
-        client = OpenAI(api_key=request.json['open_ai'])
+        openai.api_key = request.json['open_ai']
+        # client = OpenAIAPI(api_key=)
 
 
-        response = client.audio.speech.create(
+        response = openai.audio.speech.create(
             model="tts-1",
             voice="alloy",
             input=input_text
@@ -83,8 +84,9 @@ def audio_to_text():
         audio_file.write(response.content)
 
     # Configure OpenAI API
-    openai_api_key = request.json.get('open_ai', 'your_openai_api_key')
-    openai = OpenAI(api_key=openai_api_key)
+    openai.api_key = request.json['open_ai']
+    # openai_api_key = request.json.get('open_ai', 'your_openai_api_key')
+    # openai = OpenAIAPI(api_key=openai_api_key)
 
     audio_file = open("output.wav", "rb")
 
@@ -119,74 +121,68 @@ def audio_to_text():
 
 @app.route('/change-tone', methods=['POST'])
 def change_tone():
-
-
-    professional = request.json['professional']
-    emotional=request.json['emotional']
-    longer=request.json['longer']
-    shorter=request.json['shorter']
-
-    message=request.json['text']
-
-    max_=50
-
-
-    
+    # Extract parameters from the request
     openai_api_key = request.json.get('open_ai', 'your_openai_api_key')
-  
-    openai = OpenAI(api_key=openai_api_key)
+    text_to_modify = request.json.get('text', '')
+    is_professional = request.json.get('professional', False)
+    is_emotional = request.json.get('emotional', False)
+    is_longer = request.json.get('longer', False)
+    is_shorter = request.json.get('shorter', False)
 
-    if professional and emotional and longer and shorter:
-        return jsonify({'error': 'Please make only one true'}), 400
-    
-    elif professional and emotional:
-        return jsonify({'error': 'Please make only one true'}), 400
-    
-    elif longer and shorter:
-        return jsonify({'error': 'Please make only one true'}), 400
-    
-    
-    elif longer and professional:
-        return jsonify({'error': 'Please make only one true'}), 400
-    
-    elif shorter and professional:
-        return jsonify({'error': 'Please make only one true'}), 400
+    # Set the OpenAI API key
+    openai.api_key = openai_api_key
 
+    # Validate input parameters
+    if sum([is_professional, is_emotional, is_longer, is_shorter]) != 1:
+        return jsonify({'error': 'Please choose exactly one tone/length modification option'}), 400
 
-    else:
+    # Define the system message based on the selected option
+    if is_professional:
+        system_message = "You are to make this text more professional."
+    elif is_emotional:
+        system_message = "You are to make this text more emotional."
+    elif is_longer:
+        system_message = "You are to make this text longer."
+    elif is_shorter:
+        system_message = "You are to make this text shorter or summarize it."
 
-        if professional:
-            query="You are to make this text more professional"
-        elif emotional:
-            query="You are to make this text more emotional"
-
-        elif shorter:
-            query="You are to make this text shorter or summarize it"
-
-        elif longer:
-            query="you are to make this text longer"
-            max_=1024
-        
-
-
-
-        try:
-            # Call OpenAI API for transcription
-            response = openai.chat.completions.create(
+    # Make the OpenAI API call
+    try:
+        response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
-        max_tokens=max_,
-
         messages=[
-            {"role": "system", "content": query},
-            {"role": "user", "content": message}
+            {"role": "system", "content": system_message},
+            {"role": "user", "content":text_to_modify},
         ]
         )
-            summary = response.choices[0].message.content
-            print(summary)
-            return jsonify({'text':summary})
+        modified_text = response['choices'][0]['message']['content']
+        return jsonify({'text': modified_text})
+    except Exception as ex:
+        return jsonify({'error': f"Unexpected error: {ex}"}), 500
 
-        except Exception as ex:
-            return jsonify({'error': f"Unexpected error: {ex}"}), 500
+
+@app.route('/translate', methods=['POST'])
+def translate():
+
+
+    lang = request.json['lang']
+    message=request.json['text']
+
+  
+
+
+    try:
+        translator = Translator()
+        text_to_translate = message  # Spanish text
+        translated_text = translator.translate(text_to_translate, dest=lang)  # Translate to French
+
+        # print(translated_text.text)
+
+        return jsonify({'text':translated_text.text})
+
+    except Exception as ex:
+        return jsonify({'error': f"Unexpected error: {ex}"}), 500
+
 
 
 
