@@ -93,11 +93,14 @@ def audio_to_text():
 
     try:
         # Call OpenAI API for transcription
-        transcript = openai.audio.transcriptions.create(
-            model="whisper-1", 
+        transcript=openai.Audio.transcribe(
+      model="whisper-1", 
             file=audio_file,  # Pass raw audio data
             response_format="text"
         )
+        # transcript = openai.audio.transcriptions.create(
+      
+        # )
 
         text = transcript
         return jsonify({'text': text})
