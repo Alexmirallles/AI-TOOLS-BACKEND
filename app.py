@@ -18,7 +18,7 @@ def generate_speech():
         openai.api_key = request.json['open_ai']
         # client = OpenAIAPI(api_key=)
 
-
+        
         response = openai.audio.speech.create(
             model="tts-1",
             voice="alloy",
@@ -122,6 +122,8 @@ def audio_to_text():
 
 
 
+
+
 @app.route('/change-tone', methods=['POST'])
 def change_tone():
     # Extract parameters from the request
@@ -186,6 +188,36 @@ def translate():
     except Exception as ex:
         return jsonify({'error': f"Unexpected error: {ex}"}), 500
 
+
+
+
+@app.route('/text-image', methods=['POST'])
+def textImage():
+
+
+    text = request.json['text']
+
+    openai.api_key = request.json['open_ai']
+
+    try:
+        response = openai.Image.create(
+            model="dall-e-3",
+            prompt=text,
+            size="1024x1024",
+            quality="standard",
+            n=1,
+            )
+
+        image_url = response.data[0].url
+
+  
+
+
+
+        return jsonify({'url':image_url})
+
+    except Exception as ex:
+        return jsonify({'error': f"Unexpected error: {ex}"}), 500
 
 
 
