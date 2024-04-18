@@ -1,12 +1,12 @@
 import speech_recognition as sr
 from flask import Flask, request, jsonify, send_file
-# from openai import OpenAI
+from openai import OpenAI
 import openai
 
 import requests
 import tempfile
 
-from googletrans import Translator
+# from googletrans import Translator
 
 app = Flask(__name__)
 recognizer = sr.Recognizer()
@@ -15,15 +15,21 @@ recognizer = sr.Recognizer()
 def generate_speech():
     try:
         input_text = request.json['input_text']
-        openai.api_key = request.json['open_ai']
-        # client = OpenAIAPI(api_key=)
+        # openai.api_key = request.json['open_ai']
+
+        client= OpenAI(
+                api_key=request.json['open_ai'],
+
+        )
 
         
-        response = openai.audio.speech.create(
+        response = client.audio.speech.create(
             model="tts-1",
             voice="alloy",
             input=input_text
         )
+
+  
 
         temp_file_path = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3").name
         response.stream_to_file(temp_file_path)
@@ -84,17 +90,20 @@ def audio_to_text():
         audio_file.write(response.content)
 
     # Configure OpenAI API
-    openai.api_key = request.json['open_ai']
     # openai_api_key = request.json.get('open_ai', 'your_openai_api_key')
     # openai = OpenAIAPI(api_key=openai_api_key)
+    client= OpenAI(
+                api_key=request.json['open_ai'],
+
+        )
 
     audio_file = open("output.wav", "rb")
 
 
     try:
         # Call OpenAI API for transcription
-        transcript=openai.Audio.transcribe(
-      model="whisper-1", 
+        transcript=client.audio.transcriptions.create(
+            model="whisper-1", 
             file=audio_file,  # Pass raw audio data
             response_format="text"
         )
@@ -166,62 +175,53 @@ def change_tone():
         return jsonify({'error': f"Unexpected error: {ex}"}), 500
 
 
-@app.route('/translate', methods=['POST'])
-def translate():
+# @app.route('/translate', methods=['POST'])
+# def translate():
 
 
-    lang = request.json['lang']
-    message=request.json['text']
+#     lang = request.json['lang']
+#     message=request.json['text']
 
   
 
 
-    try:
-        translator = Translator()
-        text_to_translate = message  # Spanish text
-        translated_text = translator.translate(text_to_translate, dest=lang)  # Translate to French
+#     try:
+#         translator = Translator()
+#         text_to_translate = message  # Spanish text
+#         translated_text = translator.translate(text_to_translate, dest=lang)  # Translate to French
 
-        # print(translated_text.text)
+#         # print(translated_text.text)
 
-        return jsonify({'text':translated_text.text})
+#         return jsonify({'text':translated_text.text})
 
-    except Exception as ex:
-        return jsonify({'error': f"Unexpected error: {ex}"}), 500
+#     except Exception as ex:
+#         return jsonify({'error': f"Unexpected error: {ex}"}), 500
 
 
 
 
 @app.route('/text-image', methods=['POST'])
 def textImage():
-
-
-    text = request.json['text']
-
-    openai.api_key = request.json['open_ai']
-
     try:
-        response = openai.Image.create(
-            model="dall-e-3",
+        text = request.json['text']
+        client = OpenAI(api_key=request.json['open_ai'])
+
+        # Generate 5 images
+        response = client.images.generate(
+            model="dall-e-2",
             prompt=text,
             size="1024x1024",
             quality="standard",
-            n=1,
-            )
+            n=5,
+        )
 
-        image_url = response.data[0].url
+        # Extract image URLs
+        image_urls = [image.url for image in response.data]
 
-  
-
-
-
-        return jsonify({'url':image_url})
+        return jsonify({'urls': image_urls})
 
     except Exception as ex:
         return jsonify({'error': f"Unexpected error: {ex}"}), 500
-
-
-
-
 
 
 
