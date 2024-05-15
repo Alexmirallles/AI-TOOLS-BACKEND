@@ -13,7 +13,7 @@ SECRET_KEY = 'django-insecure-k*&s4nv%gkv=s-u01vyl9+++n2-g07nlaa$@2(u3j)^n9i)tdc
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['0.0.0.0','aiapis.onrender.com']
+ALLOWED_HOSTS = ['0.0.0.0','aiapis.onrender.com','ai-tools-backend.onrender.com']
 
 
 # Application definition
@@ -43,7 +43,8 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000", 
+    "http://localhost:3000",
+    "https://ai-tools-backend.onrender.com",
      "http://localhost:3002" # Adjust this to match the origin of your React app
 ]
 
