@@ -16,6 +16,7 @@ function App() {
         <Router>
           <AuthProvider>
             <Routes>
+              <Route path="/" element={<Login/>}/>
               <Route path="/admin/auth/login" element={<Login />} />
               <Route path="*" element={<NotFound />} />
 
