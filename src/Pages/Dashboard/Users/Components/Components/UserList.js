@@ -5,17 +5,10 @@ import React, { Component } from 'react';
 import { Card, Table, Tag, Tooltip, message, Button} from 'antd';
 import { EyeOutlined, DeleteOutlined,  EditOutlined,CloseCircleOutlined} from '@ant-design/icons';
 import dayjs from 'dayjs';
-import config from '../config';
-
-// import config from '../../config';
-// import countries from '../../countries';
-
-// import dayjs from 'dayjs';
-// import RegiondataWidget from '../components/shared-components/RegiondataWidget';
-
+import config from '../../../../../config';
 import UserView from './UserView';
 // import CustomLayout from '../../layouts/Customlayout';
-// import './Leads.css'
+
 
 
 
@@ -56,50 +49,11 @@ export class UserList extends Component {
     this.loadUserData();
   }
 
-  // loadUserData = async () =>{
-  //   this.setState({
-  //       users:[
-  //           {
-  //           user_id:23892,
-  //           username:"derrick_dadson",
-  //           registration_date:"29-02-2021",
-  //           last_login:"30-02-2021",
-  //           status:"active",
-  //           premium:false,
-  //           total_log:10,
-  //           email:"derrickdadson14@gmail.com"
-  //       },
-  //       {
-  //           user_id:8912,
-  //           username:"versus_socials",
-  //           registration_date:"29-02-2022",
-  //           last_login:"30-02-2022",
-  //           status:"banned",
-  //           premium:true,
-  //           total_log:20,
-  //           email:"versus_socials@gmail.com"
 
-  //       },
-  //       {
-  //           user_id:2132,
-  //           username:"engr_faisal",
-  //           registration_date:"29-02-2023",
-  //           last_login:"30-02-2023",
-  //           status:"active",
-  //           premium:true,
-  //           total_log:90,
-  //           email:"engr_faisal@gmail.com"
-
-  //       },
-
-    
-  //   ]
-  //   })
-  // }
 
   loadUserData = async () => {
 
-    const token="2371|SyDGJaPcIUlbiikQwvuL6Ci4NfpDQXdtWnHIx4X5"
+    const token=localStorage.getItem('token')
     try {
 
 
@@ -234,7 +188,7 @@ export class UserList extends Component {
 			title: 'Action',
 	
 			render: (_, elm) => (
-				<div className='text-left gap-2'>
+				<div className='text-left gap-1 w-40'>
                                         
 					<Tooltip title="Ban">
 						<Button className="mr-2" icon={<CloseCircleOutlined />}  size="small"/>
@@ -261,12 +215,11 @@ export class UserList extends Component {
     return (
      
 
-          <Card bodyStyle={{ padding: '0px' }}>
-            <div className="table-responsive">
+          <Card  className='h-screen' >
+            <div className="table-responsive p-0">
               <Table columns={tableColumns} dataSource={users} rowKey="id" />
             </div>
-			<UserView data={selectedUser} visible={userProfileVisible} close={()=> {this.closeUserProfile()}}/>
-
+			        <UserView data={selectedUser} visible={userProfileVisible} close={()=> {this.closeUserProfile()}}/>
           </Card>
      
     );
