@@ -98,6 +98,8 @@ export class UserList extends Component {
   // }
 
   loadUserData = async () => {
+
+    const token="2371|SyDGJaPcIUlbiikQwvuL6Ci4NfpDQXdtWnHIx4X5"
     try {
 
 
@@ -105,7 +107,7 @@ export class UserList extends Component {
         method: 'GET', // or 'POST', 'PUT', etc.
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer 2371|SyDGJaPcIUlbiikQwvuL6Ci4NfpDQXdtWnHIx4X5`,
+          'Authorization': `Bearer ${token}`,
         },
       });
 
