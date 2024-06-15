@@ -214,14 +214,16 @@ export class UserList extends Component {
 
     return (
      
-
-          <Card  className='h-screen' >
+      <div className='flex justify-center items-center'>
+          <Card   >
             <div className="table-responsive p-0">
-              <Table columns={tableColumns} dataSource={users} rowKey="id" />
+              <Table columns={tableColumns} dataSource={users} pagination={{pageSize:50}} rowKey="id" />
             </div>
 			        <UserView data={selectedUser} visible={userProfileVisible} close={()=> {this.closeUserProfile()}}/>
           </Card>
      
+      </div>
+
     );
   }
 }
